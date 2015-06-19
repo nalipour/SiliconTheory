@@ -27,11 +27,11 @@ class Device:
     Ec=0
     beta=0
     DiffusionConst=0
+    CarrierMobilityConst=0
 
 
     
     def __init__(self, carrierType, bulkType, thickness, V_B, V_D, thresholdDAC, thresholdTrans_a, thresholdTrans_b):
-
 
         self.carrierType=carrierType
         self.bulkType=bulkType
@@ -47,18 +47,22 @@ class Device:
             self.vm=1.62*TMath.Power(10, 8)*TMath.Power(self.temperature, -0.52)
             self.Ec=1.24*TMath.Power(self.temperature, 1.68)
             self.beta=0.46*TMath.Power(self.temperature, 0.17)
-            self.DiffusionConst=Default_Electron_D
+            self.DiffusionConst=Default_Hole_D
+            self.CarrierMobilityConst=Default_Hole_Mobility
 
         elif (self.carrierType=="n"):
             self.vm=1.53*TMath.Power(10, 9)*TMath.Power(self.temperature, -0.87)
             self.Ec=1.01*TMath.Power(self.temperature, 1.55)
             self.beta=2.57*TMath.Power(10, -2)*TMath.Power(self.temperature, 0.66)
-            self.DiffusionConst=Default_Hole_D
+            self.DiffusionConst=Default_Electron_D
+            self.CarrierMobilityConst=Default_Electron_Mobility
+
 
     def Efield(self, z):
         Efield=((self.V_B-self.V_D)/self.thickness+(1-z/self.thickness)*2*self.V_D/self.thickness) #[V/cm]
         mobility_c=(self.vm/self.Ec)/(TMath.Power((1+TMath.Power(TMath.Abs(Efield)/self.Ec, self.beta)), 1.0/self.beta))
-        t_drift=(self.thickness*self.thickness)/(2*mobility_c*self.V_D)*TMath.Log((self.V_B+self.V_D)/(self.V_B+self.V_D-2.0*self.V_D*z/self.thickness))
+        # t_drift=(self.thickness*self.thickness)/(2*mobility_c*self.V_D)*TMath.Log((self.V_B+self.V_D)/(self.V_B+self.V_D-2.0*self.V_D*z/self.thickness))
+        t_drift=(self.thickness*self.thickness)/(2*self.CarrierMobilityConst*self.V_D)*TMath.Log((self.V_B+self.V_D)/(self.V_B+self.V_D-2.0*self.V_D*z/self.thickness))
         return Efield, mobility_c, t_drift
 
     def sigmaDiffusion(self, z):
@@ -181,20 +185,15 @@ if __name__ == '__main__':
     print "rightmax=", rightmax
     print "rightmin=", rightmin
     scale = gPad.GetUymax()/rightmax
-    #scale = gPad.GetUymax()/(rightmax-rightmin)+rightmin
-    print scale
 
 
     for i in range(0, grM.GetN()):
         grM.GetY()[i]*=scale
-#        grM.GetY()[i]=(grM.GetY()[i]-rightmin)*scale
 
 
     grM.Draw("same")
 
-    print "gPad.GetUxmax()=", gPad.GetUxmax()
-    print "gPad.GetUymin()=", gPad.GetUymin()
-    print "gPad.GetUymax()=",  gPad.GetUymax()
+
 
     axis = TGaxis(gPad.GetUxmax(),gPad.GetUymin(), gPad.GetUxmax(), gPad.GetUymax(), 0, rightmax, 510,"+L")
     axis.SetLineColor(kGreen+2)
@@ -208,17 +207,6 @@ if __name__ == '__main__':
     gPad.Update()
     gPad.Modified()
 
-    
-
-
-
-    # canvS=TCanvas("Sigma", "Sigma")
-    # grS.Draw("ALP")
-    # grS_varMob.Draw("same")
-    # grS.GetXaxis().SetTitle("V_{bias} [V]")
-    # grS.GetYaxis().SetTitle("#sigma_{diffusion} [#mum]");
-    
-    # gPad.Update()
     
     bla=raw_input()
 
