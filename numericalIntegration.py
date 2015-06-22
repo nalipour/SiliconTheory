@@ -47,7 +47,7 @@ def ReturnDriftTime(device):
     
 
     # print "Integral constMob=", TMath.Sqrt(2*device.DiffusionConst*grFuncConstMob.Integral(0, -1))*1e4
-    print "Integral constMob=", NumInt(grFuncConstMob, 0, 0.02, 10000) #NOT CORRECT -> WHYYYYYY????
+    print "Integral constMob=", NumInt(grFuncConstMob, 0, 0.02, 10000)
     print "Integral NonConstMob=", NumInt(grFuncNonConstMob, 0, 0.02, 10000)
     print "Integral const mu=", NumInt(grConstMob, 0, 0.02, 10000)
 
@@ -121,9 +121,9 @@ if __name__ == '__main__':
     mg.Add(grDriftTimeTheory)
     leg.AddEntry(grDriftTimeTheory, "Theory", "p")
     mg.Add(grTimeConstMob)
-    leg.AddEntry(grTimeConstMob, "Const mob", "l")
+    leg.AddEntry(grTimeConstMob, "#mu_{const}", "l")
     mg.Add(grTimeNonConstMob)
-    leg.AddEntry(grTimeNonConstMob, "Non const mob", "l")
+    leg.AddEntry(grTimeNonConstMob, "#mu_{non-const}", "l")
 
     canv=TCanvas("can", "can")
     mg.Draw("ALP")
@@ -215,20 +215,23 @@ if __name__ == '__main__':
     grDiffusionConst=TGraph(len(zIntegral), array('f', zIntegral), array('f', diffusionConst))
     grDiffusionConstTheory=TGraph(len(zIntegral), array('f', zIntegral), array('f', diffusionConstTheory))
 
-    grDiffusionConst.SetMarkerColor(kBlue)
+    grDiffusionConst.SetMarkerColor(kBlack)
     grDiffusionConst.SetMarkerStyle(7)
-    grDiffusionConst.SetLineColor(kBlue)
+    grDiffusionConst.SetLineColor(kBlack)
 
-    grDiffusionConstTheory.SetMarkerColor(kBlack)
+    grDiffusionConstTheory.SetMarkerColor(kGreen+2)
     grDiffusionConstTheory.SetMarkerStyle(7)
-    grDiffusionConstTheory.SetLineColor(kBlack)
+    grDiffusionConstTheory.SetLineColor(kGreen+2)
 
     mgDiffConst=TMultiGraph("diffusion constant", "diffusion constant")
-    mgDiffConst.Add(grDiffusionConst, "l")
     mgDiffConst.Add(grDiffusionConstTheory, "l")
+    mgDiffConst.Add(grDiffusionConst, "l")
+
     legDiff=TLegend(0.2, 0.5, 0.5, 0.7)
-    legDiff.AddEntry(grDiffusionConst, "#mu_{non-constant}", "l")
     legDiff.AddEntry(grDiffusionConstTheory,  "#mu_{const}", "l")
+    legDiff.AddEntry(grDiffusionConst, "#mu_{non-constant}", "l")
+
+
     mgDiffConst.Draw("ALP")
     legDiff.Draw()
     mgDiffConst.GetXaxis().SetTitle("Depth [#mum]")
@@ -244,20 +247,21 @@ if __name__ == '__main__':
     grSigmaVar=TGraph(len(zIntegral), array('f', zIntegral), array('f', sigmaVarMob))
     grSigma=TGraph(len(zIntegral), array('f', zIntegral), array('f', sigma))
     
-    grSigma.SetMarkerColor(kBlack)
+    grSigma.SetMarkerColor(kGreen+2)
     grSigma.SetMarkerStyle(7)
-    grSigma.SetLineColor(kBlack)
+    grSigma.SetLineColor(kGreen+2)
 
-    grSigmaVar.SetMarkerColor(kBlue)
+    grSigmaVar.SetMarkerColor(kBlack)
     grSigmaVar.SetMarkerStyle(7)
-    grSigmaVar.SetLineColor(kBlue)
+    grSigmaVar.SetLineColor(kBlack)
 
     mgSigma=TMultiGraph("Sigma", "Sigma")
     mgSigma.Add(grSigma, "l")
     mgSigma.Add(grSigmaVar, "l")
     legSigma=TLegend(0.2, 0.6, 0.5, 0.8)
-    legSigma.AddEntry(grSigmaVar, "#mu_{non-constant}", "l")
     legSigma.AddEntry(grSigma,  "#mu_{const}", "l")
+    legSigma.AddEntry(grSigmaVar, "#mu_{non-constant}", "l")
+
     mgSigma.Draw("ALP")
     legSigma.Draw()
     mgSigma.GetXaxis().SetTitle("Depth [#mum]")
